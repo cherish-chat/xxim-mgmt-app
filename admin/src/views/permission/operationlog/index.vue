@@ -4,11 +4,9 @@
       <div class="mt-4">
         <div>
           <el-table :data="pager.lists" size="large" v-loading="pager.loading">
-<!--            <el-table-column prop="id" label="ID" min-width="100"/>-->
             <el-table-column label="操作人" min-width="150">
               <template #default="{ row }">
-                <el-tag v-if="row.operator === ''"> 未登录</el-tag>
-                <el-tag v-else> {{ row.operator }}</el-tag>
+                <el-tag v-if="row.operator&&row.operator!=='null'"> {{ row.operator }}</el-tag>
                 <el-tag> {{ row.reqIp }}</el-tag>
               </template>
             </el-table-column>
@@ -23,8 +21,8 @@
             <el-table-column prop="operationTitle" label="标题" min-width="150"/>
             <el-table-column label="是否成功" min-width="150">
               <template #default="{ row }">
-                <el-tag v-if="row.resultSuccess" type="success"> 成功 </el-tag>
-                <el-tag v-else type="danger"> {{ row.reqResultMsg }} </el-tag>
+                <el-tag v-if="row.resultSuccess" type="success"> 成功</el-tag>
+                <el-tag v-else type="danger"> {{ row.reqResultMsg }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column

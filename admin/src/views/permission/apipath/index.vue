@@ -12,7 +12,6 @@
       <div class="mt-4">
         <div>
           <el-table :data="pager.lists" size="large" v-loading="pager.loading">
-            <el-table-column prop="id" label="ID" min-width="100"/>
             <el-table-column prop="title" label="标题" min-width="150"/>
             <el-table-column
                 prop="path"

@@ -1,8 +1,8 @@
 <template>
-  <div class="apipath-lists">
+  <div class="ipwhitelist-lists">
     <el-card class="!border-none" shadow="never">
       <div>
-        <el-button v-perms="['system:apipath:add']" type="primary" @click="handleAdd">
+        <el-button v-perms="['system:ipwhitelist:add']" type="primary" @click="handleAdd">
           <template #icon>
             <icon name="el-icon-Plus"/>
           </template>
@@ -13,23 +13,35 @@
         <div>
           <el-table :data="pager.lists" size="large" v-loading="pager.loading">
             <el-table-column prop="id" label="ID" min-width="100"/>
-            <el-table-column prop="title" label="标题" min-width="150"/>
+            <el-table-column label="作用用户" min-width="150">
+              <template #default="{ row }">
+                <el-tag v-if="row.userId === ''" type="primary">所有用户</el-tag>
+                <span v-else>{{ row.userId }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="remark" label="备注" min-width="150"/>
             <el-table-column
-                prop="path"
-                label="路径"
+                prop="startIp"
+                label="开始ip"
                 min-width="150"
                 show-overflow-tooltip
             />
-            <el-table-column label="记录日志" min-width="180">
+            <el-table-column
+                prop="endIp"
+                label="结束ip"
+                min-width="150"
+                show-overflow-tooltip
+            />
+            <el-table-column label="启用" min-width="180">
               <template #default="{ row }">
-                {{ row.logEnable ? '是' : '否' }}
+                {{ row.isEnable ? '是' : '否' }}
               </template>
             </el-table-column>
             <el-table-column prop="createdAtStr" label="创建时间" min-width="180"/>
             <el-table-column label="操作" width="190" fixed="right">
               <template #default="{ row }">
                 <el-button
-                    v-perms="['system:apipath:edit']"
+                    v-perms="['system:ipwhitelist:edit']"
                     link
                     type="primary"
                     @click="handleEdit(row)"
@@ -37,7 +49,7 @@
                   编辑
                 </el-button>
                 <el-button
-                    v-perms="['system:apipath:del']"
+                    v-perms="['system:ipwhitelist:del']"
                     link
                     type="danger"
                     @click="handleDelete(row.id)"
@@ -57,8 +69,8 @@
   </div>
 </template>
 
-<script lang="ts" setup name="apipath">
-import {apipathDelete, apipathLists} from '@/api/perms/apipath'
+<script lang="ts" setup name="ipwhitelist">
+import {ipwhitelistDelete, ipwhitelistLists} from '@/api/perms/ipwhitelist'
 import {usePaging} from '@/hooks/usePaging'
 import feedback from '@/utils/feedback'
 import EditPopup from './edit.vue'
@@ -66,8 +78,8 @@ import EditPopup from './edit.vue'
 const editRef = shallowRef<InstanceType<typeof EditPopup>>()
 const showEdit = ref(false)
 const {pager, getLists} = usePaging({
-  fetchFun: apipathLists,
-  respKey: "apiPaths"
+  fetchFun: ipwhitelistLists,
+  respKey: "ipWhiteLists"
 })
 const handleAdd = async () => {
   showEdit.value = true
@@ -85,7 +97,7 @@ const handleEdit = async (data: any) => {
 // 删除角色
 const handleDelete = async (id: string) => {
   await feedback.confirm('确定要删除？')
-  await apipathDelete({ids: [id]})
+  await ipwhitelistDelete({ids: [id]})
   feedback.msgSuccess('删除成功')
   getLists()
 }

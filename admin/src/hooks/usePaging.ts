@@ -33,13 +33,12 @@ export function usePaging(options: Options) {
             ...params
         })
             .then((res: any) => {
-                pager.count = res?.count
+                pager.count = res?.total || res?.count || 0
                 if (options.respKey) {
                     pager.lists = res[options.respKey]
                 } else {
                     pager.lists = res.lists
                 }
-                console.log("pager.lists==>", pager.lists)
                 return Promise.resolve(res)
             })
             .catch((err: any) => {

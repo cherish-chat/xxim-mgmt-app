@@ -15,30 +15,41 @@
           :model="formData"
           label-width="60px"
       >
-        <el-form-item label="提示">
-          <el-alert title="更改api后需要重启服务器才能生效" type="warning" effect="dark"/>
-        </el-form-item>
-        <el-form-item label="标题" prop="title">
+        <el-form-item label="用户" prop="userId">
           <el-input
               class="ls-input"
-              v-model="formData.title"
+              v-model="formData.userId"
+              placeholder="作用用户 空表示所有用户"
+              clearable
+          />
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input
+              class="ls-input"
+              v-model="formData.remark"
               placeholder="请输入标题"
               clearable
           />
         </el-form-item>
-        <el-form-item label="路径" prop="remark">
+        <el-form-item label="开始" prop="startIp">
           <el-input
-              v-model="formData.path"
-              type="textarea"
-              :autosize="{ minRows: 1, maxRows: 68 }"
-              placeholder="请输入路径"
-              maxlength="200"
-              show-word-limit
+              class="ls-input"
+              v-model="formData.startIp"
+              placeholder="请输入开始ip"
+              clearable
           />
         </el-form-item>
-        <el-form-item label="日志">
+        <el-form-item label="结束" prop="endIp">
+          <el-input
+              class="ls-input"
+              v-model="formData.endIp"
+              placeholder="请输入结束ip"
+              clearable
+          />
+        </el-form-item>
+        <el-form-item label="启用">
           <el-switch
-              v-model="formData.logEnable"
+              v-model="formData.isEnable"
               :active-value="true"
               :inactive-value="false"
           />
@@ -49,7 +60,7 @@
 </template>
 <script lang="ts" setup>
 import type {FormInstance} from 'element-plus'
-import {apipathAdd, apipathDetail, apipathEdit} from '@/api/perms/apipath'
+import {ipwhitelistAdd, ipwhitelistDetail, ipwhitelistEdit} from '@/api/perms/ipwhitelist'
 import Popup from '@/components/popup/index.vue'
 import feedback from '@/utils/feedback'
 
@@ -58,27 +69,36 @@ const formRef = shallowRef<FormInstance>()
 const popupRef = shallowRef<InstanceType<typeof Popup>>()
 const mode = ref('add')
 const popupTitle = computed(() => {
-  return mode.value == 'edit' ? '编辑api' : '新增api'
+  return mode.value == 'edit' ? '编辑白名单' : '新增白名单'
 })
 const formData = reactive({
   id: '',
-  title: '',
-  path: '',
-  logEnable: true,
+  remark: '',
+  userId: '',
+  startIp: '',
+  endIp: '',
+  isEnable: true,
 })
 
 const rules = {
-  title: [
+  remark: [
     {
       required: true,
-      message: '请输入标题',
+      message: '请输入备注',
       trigger: ['blur']
     }
   ],
-  path: [
+  startIp: [
     {
       required: true,
-      message: '请输入路径',
+      message: '请输入开始ip',
+      trigger: ['blur']
+    }
+  ],
+  endIp: [
+    {
+      required: true,
+      message: '请输入结束ip',
       trigger: ['blur']
     }
   ],
@@ -87,7 +107,7 @@ const rules = {
 const handleSubmit = async () => {
   await formRef.value?.validate()
   const params = {...formData}
-  mode.value == 'edit' ? await apipathEdit(params) : await apipathAdd(params)
+  mode.value == 'edit' ? await ipwhitelistEdit(params) : await ipwhitelistAdd(params)
   popupRef.value?.close()
   feedback.msgSuccess('操作成功')
   emit('success')
@@ -103,10 +123,10 @@ const open = (type = 'add') => {
 }
 
 const setFormData = async (row: Record<any, any>) => {
-  let data = await apipathDetail({
+  let data = await ipwhitelistDetail({
     id: row.id
   })
-  data = data.apiPath
+  data = data.ipWhiteList
   for (const key in formData) {
     if (data[key] != null && data[key] != undefined) {
       //@ts-ignore

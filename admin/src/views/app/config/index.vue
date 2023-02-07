@@ -76,6 +76,9 @@ getLists()
               <el-input-number v-else-if="config.type === 'number'" v-model="config.v" :controls="false"/>
               <el-switch v-else-if="config.type === 'bool'" v-model="config.v" />
               <el-input type="textarea" v-else-if="config.type === 'stringArray'" v-model="config.v" />
+              <el-select type="textarea" v-else-if="config.type === 'option'" v-model="config.v">
+                <el-option v-for="(option, index) in JSON.parse(config.options)" :key="index" :label="option.label" :value="option.value" />
+              </el-select>
             </el-form-item>
           </el-form>
         </div>

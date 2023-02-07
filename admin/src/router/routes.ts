@@ -45,6 +45,39 @@ export const constantRoutes: Array<RouteRecordRaw> = [
                 meta: {
                     title: '个人设置'
                 }
+            },
+            {
+                path: 'friends',
+                name: Symbol(),
+                component: () => import('@/views/user/friend/index.vue'),
+                meta: {
+                    title: '好友列表',
+                    keepAlive: false
+                }
+            },
+            {
+                path: 'groups',
+                name: Symbol(),
+                component: () => import('@/views/user/group/index.vue'),
+                meta: {
+                    title: '群列表',
+                    keepAlive: false
+                }
+            }
+        ]
+    },
+    {
+        path: '/msg',
+        component: LAYOUT,
+        children: [
+            {
+                path: 'convmsgs',
+                name: Symbol(),
+                component: () => import('@/views/msg/convmsg/index.vue'),
+                meta: {
+                    title: '聊天记录',
+                    keepAlive: false
+                }
             }
         ]
     }

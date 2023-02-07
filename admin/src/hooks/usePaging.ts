@@ -1,4 +1,4 @@
-import { reactive, toRaw } from 'vue'
+import {reactive, toRaw} from 'vue'
 
 // 分页钩子函数
 interface Options {
@@ -11,7 +11,7 @@ interface Options {
 }
 
 export function usePaging(options: Options) {
-    const { page = 1, size = 15, fetchFun, params = {}, firstLoading = false } = options
+    const {page = 1, size = 15, fetchFun, params = {}, firstLoading = false} = options
     // 记录分页初始参数
     const paramsInit: Record<any, any> = Object.assign({}, toRaw(params))
     // 分页数据
@@ -30,7 +30,7 @@ export function usePaging(options: Options) {
                 page: pager.page,
                 size: pager.size
             },
-            ...params
+            filter: params
         })
             .then((res: any) => {
                 pager.count = res?.total || res?.count || 0

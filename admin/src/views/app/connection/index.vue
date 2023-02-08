@@ -17,6 +17,7 @@
                 <el-tag type="warning"> {{ row.ipRegion }}</el-tag>
               </template>
             </el-table-column>
+            <el-table-column prop="podIp" label="podIp" min-width="180"/>
             <el-table-column prop="connectTimeStr" label="连接时间" min-width="180"/>
             <el-table-column label="操作" width="190" fixed="right">
               <template #default="{ row }">

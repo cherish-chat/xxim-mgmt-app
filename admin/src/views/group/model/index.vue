@@ -10,6 +10,45 @@
               @keyup.enter="resetPage"
           />
         </el-form-item>
+        <el-form-item label="名称">
+          <el-input
+              v-model="formData.name"
+              class="w-[280px]"
+              clearable
+              @keyup.enter="resetPage"
+          />
+        </el-form-item>
+        <el-form-item label="群主">
+          <el-input
+              v-model="formData.owner"
+              class="w-[280px]"
+              clearable
+              @keyup.enter="resetPage"
+          />
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select
+              v-model="formData.status"
+              clearable
+          >
+            <el-option label="全部" value=""/>
+            <el-option label="正常" value="normal"/>
+            <el-option label="解散" value="dismiss"/>
+            <el-option label="禁言" value="mute"/>
+          </el-select>
+        </el-form-item>
+        <!--createTime range-->
+        <el-form-item label="创建时间">
+          <el-date-picker
+              v-model="formDataCreateTime"
+              type="datetimerange"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              clearable
+              @change="setFormDataCreateTime"
+          />
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="resetPage">查询</el-button>
           <el-button @click="resetParams">重置</el-button>
@@ -37,17 +76,10 @@
                 <el-tag v-if="row.dismissTime === 0 && !row.allMute" type="success">正常</el-tag>
               </template>
             </el-table-column>
+            <el-table-column label="创建时间" prop="createTimeStr" min-width="150"/>
             <el-table-column label="后台备注" min-width="80" prop="adminRemark"/>
             <el-table-column label="操作" width="190" fixed="right">
               <template #default="{ row }">
-                <!--                <el-button-->
-                <!--                    v-perms="['group:model:detail']"-->
-                <!--                    link-->
-                <!--                    type="primary"-->
-                <!--                    @click="handleMembers(row)"-->
-                <!--                >-->
-                <!--                  成员列表-->
-                <!--                </el-button>-->
                 <el-button
                     v-perms="['msg:msg:list']"
                     link
@@ -91,16 +123,26 @@ import {usePaging} from '@/hooks/usePaging'
 import feedback from '@/utils/feedback'
 import EditPopup from './edit.vue'
 
-const formData = reactive({
+const formData = ref({
   id: '',
+  name: '',
+  owner: '',
+  createTime_gte: '',
+  createTime_lte: '',
 })
 
+const formDataCreateTime = ref([])
+const setFormDataCreateTime = (val: any) => {
+  formDataCreateTime.value = val
+  formData.value.createTime_gte = (val[0] as Date).getTime().toString()
+  formData.value.createTime_lte = (val[1] as Date).getTime().toString()
+}
 const editRef = shallowRef<InstanceType<typeof EditPopup>>()
 const showEdit = ref(false)
 const {pager, getLists, resetPage, resetParams} = usePaging({
   fetchFun: modelLists,
   respKey: "groupModels",
-  params: formData,
+  params: formData.value,
 })
 
 const router = useRouter();

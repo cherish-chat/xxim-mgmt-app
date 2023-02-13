@@ -25,10 +25,18 @@
             <el-table-column label="操作" width="190" fixed="right">
               <template #default="{ row }">
                 <el-button
+                    v-perms="['msg:msg:list']"
+                    link
+                    type="primary"
+                    @click="handleMsg(row.groupId)"
+                >
+                  聊天记录
+                </el-button>
+                <el-button
                     v-perms="['user:group:del']"
                     link
                     type="danger"
-                    @click="handleDelete(row.id)"
+                    @click="handleDelete(row.groupId)"
                 >
                   删除
                 </el-button>
@@ -72,6 +80,11 @@ const handleDelete = async (id: string) => {
   feedback.msgSuccess('删除成功')
   getLists()
 }
-
+const getConvId = (groupId: string) => {
+  return 'group:' + groupId;
+}
+const handleMsg = async (id: string) => {
+  await router.push({path: '/msg/convmsgs', query: {id: getConvId(id)}})
+}
 getLists()
 </script>

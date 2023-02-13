@@ -35,6 +35,8 @@ interface Config {
   }
   groupRpc: {
     port: number
+    maxGroupCount: number
+    maxGroupMemberCount: number
   }
   imRpc: {
     port: number
@@ -46,6 +48,9 @@ interface Config {
     superAdminPass: string
   }
   msgRpc: {
+    discovType: string
+    endpoints: Array<string>
+    k8sNamespace: string
     port: number
     mobPush: {
       androidSound: string
@@ -76,6 +81,18 @@ interface Config {
   }
   userRpc: {
     port: number
+    sms: {
+      enabled: boolean
+      type: string
+      tencentSms: {
+        appId: string
+        secretId: string
+        secretKey: string
+        region: string
+        sign: string
+        templateId: string
+      }
+    }
   }
 }
 
@@ -113,6 +130,8 @@ const defaultConfig = {
   },
   groupRpc: {
     port: 0,
+    maxGroupCount: 0,
+    maxGroupMemberCount: 0,
   },
   imRpc: {
     port: 0,
@@ -124,6 +143,9 @@ const defaultConfig = {
     superAdminPass: '',
   },
   msgRpc: {
+    discovType: '',
+    endpoints: [],
+    k8sNamespace: '',
     port: 0,
     mobPush: {
       androidSound: '',
@@ -154,10 +176,23 @@ const defaultConfig = {
   },
   userRpc: {
     port: 0,
+    sms: {
+      enabled: false,
+      type: '',
+      tencentSms: {
+        appId: '',
+        secretId: '',
+        secretKey: '',
+        region: '',
+        sign: '',
+        templateId: '',
+      },
+    },
   }
 } as Config
 const configData = ref<Config>(defaultConfig)
 const newEndpoint = ref('')
+const newMsgEndpoint = ref('')
 const getLists = async () => {
   const data = await configLists()
   configData.value = data as Config
@@ -168,8 +203,18 @@ const handleCancel = async () => {
 }
 
 const addEndpoint = () => {
+  if (!configData.value.connRpc.endpoints) {
+    configData.value.connRpc.endpoints = []
+  }
   configData.value.connRpc.endpoints.push(newEndpoint.value)
   newEndpoint.value = ''
+}
+const addMsgEndpoint = () => {
+  if (!configData.value.msgRpc.endpoints) {
+    configData.value.msgRpc.endpoints = []
+  }
+  configData.value.msgRpc.endpoints.push(newMsgEndpoint.value)
+  newMsgEndpoint.value = ''
 }
 const handleUpdate = () => {
   configEdit({
@@ -312,6 +357,28 @@ getLists()
         <el-divider content-position="left"><span class="text-2xl font-bold">消息rpc配置</span></el-divider>
         <div>
           <el-form :model="configData.msgRpc" label-width="120px" class="mt-4">
+            <el-form-item label="发现类型">
+              <!--使用option endpoints k8s-->
+              <el-select v-model="configData.msgRpc.discovType" placeholder="请选择发现类型">
+                <el-option label="endpoints" value="endpoints"/>
+                <el-option label="k8s" value="k8s"/>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="端点">
+              <!--数组类型 可以添加删除-->
+              <el-form-item v-for="(item, index) in configData.msgRpc.endpoints" :key="index">
+                <el-tag closable @close="configData.msgRpc.endpoints.splice(index, 1)">
+                  {{ item }}
+                </el-tag>
+              </el-form-item>
+              <el-form-item>
+                <el-input v-model="newMsgEndpoint" class="input-new-tag" @keyup.enter.native="addMsgEndpoint"
+                          placeholder="新增endpoint"/>
+              </el-form-item>
+            </el-form-item>
+            <el-form-item label="K8S命名空间">
+              <el-input v-model="configData.msgRpc.k8sNamespace" placeholder="请输入K8S命名空间"/>
+            </el-form-item>
             <el-form-item label="端口">
               <!--int类型输入框-->
               <el-input-number v-model="configData.msgRpc.port" :min="1" :max="65536" :step="1"/>
@@ -403,6 +470,14 @@ getLists()
               <!--int类型输入框-->
               <el-input-number v-model="configData.groupRpc.port" :min="1" :max="65536" :step="1"/>
             </el-form-item>
+            <el-form-item label="群上限">
+              <!--int类型输入框-->
+              <el-input-number v-model="configData.groupRpc.maxGroupCount" :min="1" :max="10000" :step="100"/>
+            </el-form-item>
+            <el-form-item label="人数上限">
+              <!--int类型输入框-->
+              <el-input-number v-model="configData.groupRpc.maxGroupMemberCount" :min="100" :max="200000" :step="100"/>
+            </el-form-item>
           </el-form>
         </div>
         <el-divider content-position="left"><span class="text-2xl font-bold">通知rpc配置</span></el-divider>
@@ -429,6 +504,40 @@ getLists()
             <el-form-item label="端口">
               <!--int类型输入框-->
               <el-input-number v-model="configData.userRpc.port" :min="1" :max="65536" :step="1"/>
+            </el-form-item>
+            <el-form-item label="短信">
+              <el-form v-model="configData.userRpc.sms">
+                <el-form-item label="启用">
+                  <el-switch v-model="configData.userRpc.sms.enabled" active-color="#13ce66" inactive-color="#ff4949"/>
+                </el-form-item>
+                <el-form-item label="厂商">
+                  <el-select v-model="configData.userRpc.sms.type">
+                    <el-option label="腾讯云" value="tencent"/>
+                  </el-select>
+                </el-form-item>
+                <el-form-item v-if="configData.userRpc.sms.type==='tencent'">
+                  <el-form v-model="configData.userRpc.sms.tencentSms">
+                    <el-form-item label="AppId">
+                      <el-input v-model="configData.userRpc.sms.tencentSms.appId" placeholder="请输入AppId"/>
+                    </el-form-item>
+                    <el-form-item label="secretId">
+                      <el-input v-model="configData.userRpc.sms.tencentSms.secretId" placeholder="请输入secretId"/>
+                    </el-form-item>
+                    <el-form-item label="secretKey">
+                      <el-input v-model="configData.userRpc.sms.tencentSms.secretKey" placeholder="请输入secretKey"/>
+                    </el-form-item>
+                    <el-form-item label="region">
+                      <el-input v-model="configData.userRpc.sms.tencentSms.region" placeholder="请输入region"/>
+                    </el-form-item>
+                    <el-form-item label="签名">
+                      <el-input v-model="configData.userRpc.sms.tencentSms.sign" placeholder="请输入签名"/>
+                    </el-form-item>
+                    <el-form-item label="模板ID">
+                      <el-input v-model="configData.userRpc.sms.tencentSms.templateId" placeholder="请输入模板ID"/>
+                    </el-form-item>
+                  </el-form>
+                </el-form-item>
+              </el-form>
             </el-form-item>
           </el-form>
         </div>

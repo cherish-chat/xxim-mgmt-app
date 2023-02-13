@@ -1,8 +1,8 @@
 <template>
-  <div class="defaultconv-lists">
+  <div class="link-lists">
     <el-card class="!border-none" shadow="never">
       <div>
-        <el-button v-perms="['user:defaultconv:add']" type="primary" @click="handleAdd">
+        <el-button v-perms="['app:link:add']" type="primary" @click="handleAdd">
           <template #icon>
             <icon name="el-icon-Plus"/>
           </template>
@@ -13,26 +13,29 @@
         <div>
           <el-table :data="pager.lists" size="large" v-loading="pager.loading">
             <el-table-column prop="id" label="ID" min-width="100"/>
-            <el-table-column label="会话" min-width="150">
+            <el-table-column label="名称" min-width="150">
               <template #default="{ row }">
-                <el-tag v-if="row.convType === 0 " type="success">好友</el-tag>
-                <el-tag v-else type="danger">群聊</el-tag>
-                <el-tag type="warning">{{ row.convId }}</el-tag>
+                <el-tag>{{ row.name }}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="过滤" min-width="150">
+            <el-table-column label="链接" min-width="250" prop="url"/>
+            <el-table-column label="图标" min-width="150">
               <template #default="{ row }">
-                <el-tag v-if="row.filterType === 0" type="success"> 所有注册用户</el-tag>
-                <el-tag v-else type="info"> 使用邀请码注册的用户</el-tag>
-                <el-tag v-if="row.filterType === 1" type="danger">邀请码:{{ row.invitationCode }}</el-tag>
+                <el-avatar :src="row.icon" size="large"/>
               </template>
             </el-table-column>
-            <el-table-column prop="textMsg" label="招呼" min-width="180"/>
+            <el-table-column label="排序" min-width="150" prop="sort"/>
+            <el-table-column label="启用" min-width="150">
+              <template #default="{ row }">
+                <el-tag v-if="row.isEnable" type="success">启用</el-tag>
+                <el-tag v-else type="danger">禁用</el-tag>
+              </template>
+            </el-table-column>
             <el-table-column prop="createdAtStr" label="创建时间" min-width="180"/>
             <el-table-column label="操作" width="190" fixed="right">
               <template #default="{ row }">
                 <el-button
-                    v-perms="['user:defaultconv:edit']"
+                    v-perms="['app:link:edit']"
                     link
                     type="primary"
                     @click="handleEdit(row)"
@@ -40,7 +43,7 @@
                   编辑
                 </el-button>
                 <el-button
-                    v-perms="['user:defaultconv:del']"
+                    v-perms="['app:link:del']"
                     link
                     type="danger"
                     @click="handleDelete(row.id)"
@@ -60,8 +63,8 @@
   </div>
 </template>
 
-<script lang="ts" setup name="defaultconv">
-import {defaultconvDelete, defaultconvLists} from '@/api/user/defaultconv'
+<script lang="ts" setup name="link">
+import {linkDelete, linkLists} from '@/api/app/link'
 import {usePaging} from '@/hooks/usePaging'
 import feedback from '@/utils/feedback'
 import EditPopup from './edit.vue'
@@ -69,8 +72,8 @@ import EditPopup from './edit.vue'
 const editRef = shallowRef<InstanceType<typeof EditPopup>>()
 const showEdit = ref(false)
 const {pager, getLists} = usePaging({
-  fetchFun: defaultconvLists,
-  respKey: "userDefaultConvs"
+  fetchFun: linkLists,
+  respKey: "appMgmtLinks"
 })
 const handleAdd = async () => {
   showEdit.value = true
@@ -88,7 +91,7 @@ const handleEdit = async (data: any) => {
 // 删除角色
 const handleDelete = async (id: string) => {
   await feedback.confirm('确定要删除？')
-  await defaultconvDelete({ids: [id]})
+  await linkDelete({ids: [id]})
   feedback.msgSuccess('删除成功')
   getLists()
 }

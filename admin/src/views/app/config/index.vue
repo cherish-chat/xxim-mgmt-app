@@ -15,6 +15,7 @@ interface ConfigMap {
 }
 
 const configData = ref<ConfigMap>({})
+const groups = ref<string[]>([])
 const getLists = async () => {
   const data = await configLists()
   // for 循环 data.appMgmtConfigs , 相同group的放到同一个数组里
@@ -24,7 +25,12 @@ const getLists = async () => {
       configMap[config.group] = []
     }
     configMap[config.group].push(config)
+    if (!groups.value.includes(config.group)) {
+      groups.value.push(config.group)
+    }
   }
+  // groups 排序
+  groups.value.sort()
   configData.value = configMap
 }
 
@@ -66,7 +72,7 @@ getLists()
     <el-card class="!border-none" shadow="never">
       <div class="mt-4">
         <!-- 遍历configData group使用el-divider -->
-        <div v-for="group in Object.keys(configData)" :key="group">
+        <div v-for="group in groups" :key="group">
           <el-divider content-position="left"><span class="text-2xl font-bold">{{ group }}</span></el-divider>
           <!-- 遍历configData[group] -->
           <el-form :model="configData[group]" label-width="200px" size="small" class="mt-4">

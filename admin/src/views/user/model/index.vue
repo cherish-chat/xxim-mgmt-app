@@ -2,12 +2,61 @@
   <div class="model-lists">
     <el-card class="!border-none" shadow="never">
       <el-form class="mb-[-16px]" :model="formData" inline>
+        <el-form-item label="角色">
+          <el-select
+              v-model="formData.role"
+              clearable
+          >
+            <el-option label="全部" value=""/>
+            <el-option label="用户" :value="1"/>
+            <el-option label="客服" :value="2"/>
+            <el-option label="游客" :value="3"/>
+          </el-select>
+        </el-form-item>
         <el-form-item label="账号">
           <el-input
               v-model="formData.id"
               class="w-[280px]"
               clearable
               @keyup.enter="resetPage"
+          />
+        </el-form-item>
+        <el-form-item label="昵称">
+          <el-input
+              v-model="formData.nickname"
+              class="w-[280px]"
+              clearable
+              @keyup.enter="resetPage"
+          />
+        </el-form-item>
+        <el-form-item label="邀请码">
+          <el-input
+              v-model="formData.invitationCode"
+              class="w-[280px]"
+              clearable
+              @keyup.enter="resetPage"
+          />
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select
+              v-model="formData.status"
+              clearable
+          >
+            <el-option label="全部" value=""/>
+            <el-option label="正常" value="normal"/>
+            <el-option label="封禁" value="block"/>
+          </el-select>
+        </el-form-item>
+        <!--createTime range-->
+        <el-form-item label="注册时间">
+          <el-date-picker
+              v-model="formDataCreateTime"
+              type="datetimerange"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              clearable
+              @change="setFormDataCreateTime"
           />
         </el-form-item>
         <el-form-item>
@@ -45,16 +94,18 @@
             </el-table-column>
             <el-table-column label="上次登录" min-width="150">
               <template #default="{ row }">
-                <el-tag v-if="row.lastLoginRecord.time === 0"> 无记录</el-tag>
-                <el-tag v-if="row.lastLoginRecord.time !== 0">
-                  {{ row.lastLoginRecord.timeStr }}
-                </el-tag>
-                <el-tag v-if="row.lastLoginRecord.time !== 0" type="warning">
-                  {{ row.lastLoginRecord.ip }}
-                </el-tag>
-                <el-tag v-if="row.lastLoginRecord.time !== 0" type="danger">
-                  {{ row.lastLoginRecord.ipRegion }}
-                </el-tag>
+                <div v-if="row.lastLoginRecord">
+                  <el-tag v-if="row.lastLoginRecord.time === 0"> 无记录</el-tag>
+                  <el-tag v-if="row.lastLoginRecord.time !== 0">
+                    {{ row.lastLoginRecord.timeStr }}
+                  </el-tag>
+                  <el-tag v-if="row.lastLoginRecord.time !== 0" type="warning">
+                    {{ row.lastLoginRecord.ip }}
+                  </el-tag>
+                  <el-tag v-if="row.lastLoginRecord.time !== 0" type="danger">
+                    {{ row.lastLoginRecord.ipRegion }}
+                  </el-tag>
+                </div>
               </template>
             </el-table-column>
             <el-table-column label="注册信息" min-width="180">
@@ -139,10 +190,21 @@ import feedback from '@/utils/feedback'
 import EditPopup from './edit.vue'
 import SwitchPopup from './switch.vue'
 
-const formData = reactive({
+const formData = ref({
   id: '',
+  nickname: '',
+  role: '',
+  invitationCode: '',
+  status: '',
+  createTime_gte: '',
+  createTime_lte: '',
 })
-
+const formDataCreateTime = ref([])
+const setFormDataCreateTime = (val: any) => {
+  formDataCreateTime.value = val
+  formData.value.createTime_gte = (val[0] as Date).getTime().toString()
+  formData.value.createTime_lte = (val[1] as Date).getTime().toString()
+}
 const editRef = shallowRef<InstanceType<typeof EditPopup>>()
 const switchRef = shallowRef<InstanceType<typeof SwitchPopup>>()
 const showEdit = ref(false)
@@ -150,7 +212,7 @@ const showSwitch = ref(false)
 const {pager, getLists, resetPage, resetParams} = usePaging({
   fetchFun: modelLists,
   respKey: "userModelList",
-  params: formData,
+  params: formData.value,
 })
 
 const getRole = (row: any) => {

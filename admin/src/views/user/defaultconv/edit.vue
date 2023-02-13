@@ -55,6 +55,15 @@
               clearable
           />
         </el-form-item>
+        <el-form-item label="招呼" prop="textMsg" v-if="formData.convType===0">
+          <el-input
+              type="textarea"
+              class="ls-input"
+              v-model="formData.textMsg"
+              placeholder="请输入打招呼的内容"
+              clearable
+          />
+        </el-form-item>
       </el-form>
     </popup>
   </div>
@@ -78,6 +87,7 @@ const formData = reactive({
   filterType: null,
   invitationCode: '',
   convId: '',
+  textMsg: '',
 })
 
 const rules = {

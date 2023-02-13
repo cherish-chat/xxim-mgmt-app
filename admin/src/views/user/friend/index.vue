@@ -26,7 +26,7 @@
                     v-perms="['msg:msg:list']"
                     link
                     type="primary"
-                    @click="handleMsg(row.id)"
+                    @click="handleMsg(row.userId)"
                 >
                   聊天记录
                 </el-button>
@@ -34,7 +34,7 @@
                     v-perms="['user:friend:del']"
                     link
                     type="danger"
-                    @click="handleDelete(row.id)"
+                    @click="handleDelete(row.userId)"
                 >
                   删除
                 </el-button>
@@ -79,10 +79,9 @@ const handleDelete = async (id: string) => {
   getLists()
 }
 const getConvId = (friendId: string) => {
-  const selfId = getUserId();
-  let convId = selfId + '-' + friendId;
-  if (selfId > friendId) {
-    convId = friendId + '-' + selfId;
+  let convId = userId + '-' + friendId;
+  if (userId! > friendId) {
+    convId = friendId + '-' + userId;
   }
   return 'single:' + convId;
 }

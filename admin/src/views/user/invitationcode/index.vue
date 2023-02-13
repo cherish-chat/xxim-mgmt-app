@@ -27,6 +27,14 @@
                 <el-tag v-else type="danger"> 禁用</el-tag>
               </template>
             </el-table-column>
+            <el-table-column label="预设会话模式" min-width="150">
+              <template #default="{ row }">
+                <el-tag v-if="row.defaultConvMode === 0" type="danger">添加所有预设会话</el-tag>
+                <el-tag v-else-if="row.defaultConvMode === 1" type="warning">只添加一个会话(轮询)</el-tag>
+                <el-tag v-else-if="row.defaultConvMode === 2" type="info">只添加一个会话(随机)</el-tag>
+                <el-tag v-else type="success"> 不添加会话</el-tag>
+              </template>
+            </el-table-column>
             <el-table-column prop="createdAtStr" label="创建时间" min-width="180"/>
             <el-table-column label="操作" width="190" fixed="right">
               <template #default="{ row }">

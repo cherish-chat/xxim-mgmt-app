@@ -35,6 +35,7 @@
                 <el-tag v-else type="success"> 不添加会话</el-tag>
               </template>
             </el-table-column>
+            <el-table-column prop="successUserCount" label="用户数量" min-width="60"/>
             <el-table-column prop="createdAtStr" label="创建时间" min-width="180"/>
             <el-table-column label="操作" width="190" fixed="right">
               <template #default="{ row }">

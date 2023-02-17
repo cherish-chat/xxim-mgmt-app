@@ -32,12 +32,14 @@
           />
         </el-form-item>
         <el-form-item label="图标" prop="icon">
-          <el-input
-              class="ls-input"
-              v-model="formData.icon"
-              placeholder="请输入图标"
-              clearable
-          />
+          <div>
+            <div>
+              <material-picker v-model="formData.icon" :limit="1"/>
+            </div>
+            <div class="form-tips">
+              建议尺寸：100*100px，支持jpg，jpeg，png格式
+            </div>
+          </div>
         </el-form-item>
         <el-form-item label="启用" prop="isEnable">
           <el-select v-model="formData.isEnable">

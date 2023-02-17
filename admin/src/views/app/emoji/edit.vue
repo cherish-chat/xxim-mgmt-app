@@ -42,7 +42,14 @@
           <el-input class="ls-input" v-model="formData.name" placeholder="请输入名称"/>
         </el-form-item>
         <el-form-item label="静图" prop="staticUrl">
-          <el-input class="ls-input" v-model="formData.staticUrl" placeholder="请输入静态图地址"/>
+          <div>
+            <div>
+              <material-picker v-model="formData.staticUrl" :limit="1"/>
+            </div>
+            <div class="form-tips">
+              建议尺寸：100*100px，支持jpg，jpeg，png格式
+            </div>
+          </div>
         </el-form-item>
         <el-form-item label="动图" prop="dynamicUrl">
           <el-input class="ls-input" v-model="formData.animatedUrl" placeholder="请输入动态图地址"/>

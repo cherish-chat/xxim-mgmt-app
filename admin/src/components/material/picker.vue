@@ -174,7 +174,7 @@ export default defineComponent({
         const handleConfirm = useThrottleFn(
             () => {
                 const selectUri = select.value.map((item) =>
-                    props.excludeDomain ? item.path : item.uri
+                    props.excludeDomain ? item.path : item.url
                 )
                 if (!isAdd.value) {
                     fileList.value.splice(currentIndex.value, 1, selectUri.shift())

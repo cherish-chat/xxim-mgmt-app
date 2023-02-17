@@ -8,10 +8,10 @@ import {
     fileMove,
     fileRename
 } from '@/api/file'
-import { usePaging } from '@/hooks/usePaging'
+import {usePaging} from '@/hooks/usePaging'
 import feedback from '@/utils/feedback'
-import { ElMessage, ElTree, type CheckboxValueType } from 'element-plus'
-import { shallowRef, type Ref } from 'vue'
+import {type CheckboxValueType, ElMessage, ElTree} from 'element-plus'
+import {type Ref, shallowRef} from 'vue'
 
 // 左侧分组的钩子函数
 export function useCate(type: number) {
@@ -27,17 +27,8 @@ export function useCate(type: number) {
         const data = await fileCateLists({
             type
         })
-        const item: any[] = [
-            // {
-            //     name: '全部',
-            //     id: ''
-            // },
-            // {
-            //     name: '未分组',
-            //     id: 0
-            // }
-        ]
-        cateLists.value = data
+        const item: any[] = []
+        cateLists.value = data.albumCates
         cateLists.value.unshift(...item)
         setTimeout(() => {
             treeRef.value?.setCurrentKey(cateId.value)
@@ -47,9 +38,11 @@ export function useCate(type: number) {
     // 添加分组
     const handleAddCate = async (value: string) => {
         await fileCateAdd({
-            type,
-            name: value,
-            pid: 0
+            albumCate: {
+                type,
+                name: value,
+                pid: "0"
+            },
         })
         getCateLists()
     }
@@ -66,7 +59,7 @@ export function useCate(type: number) {
     // 删除分组
     const handleDeleteCate = async (id: number) => {
         await feedback.confirm('确定要删除？')
-        await fileCateDelete({ id })
+        await fileCateDelete({ids: [id.toString()]})
         cateId.value = ''
         getCateLists()
     }
@@ -106,10 +99,11 @@ export function useFile(
         type: type,
         cid: cateId
     })
-    const { pager, getLists, resetPage } = usePaging({
+    const {pager, getLists, resetPage} = usePaging({
         fetchFun: fileList,
         params: fileParams,
         firstLoading: true,
+        respKey: 'albums',
         size
     })
 
@@ -126,17 +120,23 @@ export function useFile(
 
     const batchFileDelete = async (id?: number[]) => {
         await feedback.confirm(
-            '确认删除后，本地或云存储文件也将同步删除，如文件已被使用，请谨慎操作！'
+            '确认删除后，云存储文件不会被删除，请谨慎操作！'
         )
-        const ids = id ? id : select.value.map((item: any) => item.id)
-        await fileDelete({ ids })
+        let ids: string[] = []
+        if (id) {
+            ids = id.map((item) => item.toString())
+        }
+        if (!ids.length) {
+            ids = select.value.map((item: any) => item.id.toString())
+        }
+        await fileDelete({ids})
         getFileList()
         clearSelect()
     }
 
     const batchFileMove = async () => {
         const ids = select.value.map((item: any) => item.id)
-        await fileMove({ ids, cid: moveId.value })
+        await fileMove({ids, cid: moveId.value})
         moveId.value = 0
         getFileList()
         clearSelect()

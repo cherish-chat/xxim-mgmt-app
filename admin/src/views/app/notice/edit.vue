@@ -48,7 +48,14 @@
           <el-input class="ls-input" v-model="formData.title" placeholder="请输入标题" clearable/>
         </el-form-item>
         <el-form-item label="图片" prop="image">
-          <el-input class="ls-input" v-model="formData.image" placeholder="请输入图片" clearable/>
+          <div>
+            <div>
+              <material-picker v-model="formData.image" :limit="1"/>
+            </div>
+            <div class="form-tips">
+              建议尺寸：100*100px，支持jpg，jpeg，png格式
+            </div>
+          </div>
         </el-form-item>
         <el-form-item label="内容" prop="content">
           <el-input type="textarea" v-model="formData.content" placeholder="请输入内容"/>

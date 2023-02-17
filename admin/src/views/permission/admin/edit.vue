@@ -39,44 +39,6 @@
               clearable
           />
         </el-form-item>
-        <!--
-
-                <el-form-item label="归属部门" prop="deptId">
-                  <el-tree-select
-                    class="flex-1"
-                    v-model="formData.deptId"
-                    :data="optionsData.dept"
-                    clearable
-                    node-key="id"
-                    :props="{
-                                    value: 'id',
-                                    label: 'name',
-                                    disabled(data: any) {
-                                        return !!data.isStop
-                                    }
-                                }"
-                    check-strictly
-                    :default-expand-all="true"
-                    placeholder="请选择上级部门"
-                  />
-                </el-form-item>
-                <el-form-item label="岗位" prop="postId">
-                  <el-select
-                    class="flex-1"
-                    clearable
-                    v-model="formData.postId"
-                    placeholder="请选择岗位"
-                  >
-                    <el-option
-                      v-for="(item, index) in optionsData.post"
-                      :key="index"
-                      :label="item.name"
-                      :value="item.id"
-                    />
-                  </el-select>
-                </el-form-item>
-        -->
-
         <el-form-item label="角色" prop="role">
           <el-select
               v-model="formData.role"
@@ -160,7 +122,7 @@ const formData = reactive({
   deptId: "",
   postId: "",
   role: "",
-  avatar: "",
+  avatar: '',
   password: "",
   passwordConfirm: "",
   isDisable: false,
@@ -258,7 +220,11 @@ const {optionsData} = useDictOptions<{
 
 const handleSubmit = async () => {
   await formRef.value?.validate();
-  mode.value == "edit" ? await adminEdit(formData) : await adminAdd(formData);
+  let req = {
+    ...formData,
+    role: formData.role.toString(),
+  }
+  mode.value == "edit" ? await adminEdit(req) : await adminAdd(req);
   popupRef.value?.close();
   feedback.msgSuccess("操作成功");
   emit("success");

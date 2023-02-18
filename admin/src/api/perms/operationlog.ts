@@ -28,7 +28,7 @@ export function operationlogEdit(params: any) {
     })
 }
 
-// 删除角色
+// 删除操作日志
 export function operationlogDelete(params: any) {
     return request.post({url: '/ms/delete/operationlog', params})
 }

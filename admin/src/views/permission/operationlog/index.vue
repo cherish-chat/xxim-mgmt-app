@@ -48,6 +48,14 @@
                 >
                   详情
                 </el-button>
+                <el-button
+                    v-perms="['system:operationlog:del']"
+                    link
+                    type="danger"
+                    @click="handleDelete(row.id)"
+                >
+                  删除
+                </el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -62,9 +70,10 @@
 </template>
 
 <script lang="ts" setup name="operationlog">
-import {operationlogLists} from '@/api/perms/operationlog'
+import {operationlogDelete, operationlogLists} from '@/api/perms/operationlog'
 import {usePaging} from '@/hooks/usePaging'
 import DetailPopup from "./detail.vue";
+import feedback from "@/utils/feedback";
 
 const {pager, getLists} = usePaging({
   fetchFun: operationlogLists,
@@ -78,6 +87,14 @@ const handleDetail = async (data: any) => {
   await nextTick()
   detailRef.value?.open()
   detailRef.value?.setFormData(data)
+}
+
+// 删除角色
+const handleDelete = async (id: string) => {
+  await feedback.confirm('确定要删除？')
+  await operationlogDelete({ids:[id]})
+  feedback.msgSuccess('删除成功')
+  getLists()
 }
 getLists()
 </script>

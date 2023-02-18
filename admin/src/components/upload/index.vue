@@ -88,7 +88,7 @@ export default defineComponent({
       version: config.version
     }))
     const visible = ref(false)
-    const fileList = ref<any[]>([])
+    const fileList = ref<any[]>([])//
 
     const handleProgress = (event: any, file: any, fileLists: any[]) => {
       visible.value = true

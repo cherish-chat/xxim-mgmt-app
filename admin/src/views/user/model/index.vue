@@ -146,6 +146,14 @@
                   群列表
                 </el-button>
                 <el-button
+                    v-perms="['user:model:detail']"
+                    link
+                    type="primary"
+                    @click="handleConfig(row)"
+                >
+                  编辑配置
+                </el-button>
+                <el-button
                     v-perms="['user:model:edit']"
                     link
                     type="primary"
@@ -249,6 +257,10 @@ const handleFriends = async (row: any) => {
 const handleGroups = async (row: any) => {
   // 跳转到 /user/groups 携带参数 row.id
   router.push({path: '/user/groups', query: {id: row.id}})
+}
+const handleConfig = async (row: any) => {
+  // 跳转到 /user/groups 携带参数 row.id
+  router.push({path: '/app/app/config', query: {id: row.id}})
 }
 const handleEdit = async (data: any) => {
   showEdit.value = true

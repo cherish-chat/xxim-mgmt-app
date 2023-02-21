@@ -34,7 +34,8 @@
             <el-option label="全部" value=""/>
             <el-option label="正常" value="normal"/>
             <el-option label="解散" value="dismiss"/>
-            <el-option label="禁言" value="mute"/>
+            <el-option label="禁言全部用户" value="mute"/>
+            <el-option label="禁言普通用户" value="muteNormal"/>
           </el-select>
         </el-form-item>
         <!--createTime range-->
@@ -72,7 +73,7 @@
             <el-table-column label="状态" min-width="100">
               <template #default="{ row }">
                 <el-tag v-if="row.dismissTime !== 0" type="danger">于{{ row.dismissTimeStr }}解散</el-tag>
-                <el-tag v-if="row.allMute" type="warning">全员禁言</el-tag>
+                <el-tag v-if="row.allMute" type="warning">全员禁言({{ row.allMuterType === 0 ? '所有人' : '普通用户'}})</el-tag>
                 <el-tag v-if="row.dismissTime === 0 && !row.allMute" type="success">正常</el-tag>
               </template>
             </el-table-column>

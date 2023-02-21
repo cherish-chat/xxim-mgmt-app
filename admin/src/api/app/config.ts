@@ -1,8 +1,12 @@
 import request from '@/utils/request'
 
 // 角色列表
-export function configLists() {
-    return request.post({url: '/appmgmt/get/config/list/all',})
+export function configLists(userId: String) {
+    return request.post({
+        url: '/appmgmt/get/config/list/all', params: {
+            userId: userId
+        }
+    })
 }
 
 // 编辑角色

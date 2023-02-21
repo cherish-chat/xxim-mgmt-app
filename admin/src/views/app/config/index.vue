@@ -1,6 +1,11 @@
 <script lang="ts" setup name="config">
 import {configEdit, configLists} from '@/api/app/config'
-
+const router = useRouter();
+let userId = router.currentRoute.value.query.id;
+if (!userId) {
+  // 退出该页面
+  userId = "";
+}
 interface Config {
   group: string
   k: string
@@ -17,7 +22,7 @@ interface ConfigMap {
 const configData = ref<ConfigMap>({})
 const groups = ref<string[]>([])
 const getLists = async () => {
-  const data = await configLists()
+  const data = await configLists(userId as string)
   // for 循环 data.appMgmtConfigs , 相同group的放到同一个数组里
   const configMap: ConfigMap = {}
   for (const config of data.appMgmtConfigs) {
@@ -31,6 +36,12 @@ const getLists = async () => {
   }
   // groups 排序
   groups.value.sort()
+  // configs 排序
+  for (const group in configMap) {
+    configMap[group].sort((a, b) => {
+      return a.k.localeCompare(b.k)
+    })
+  }
   configData.value = configMap
 }
 
@@ -49,7 +60,8 @@ const handleUpdate = () => {
     }
   }
   configEdit({
-    appMgmtConfigs: configs
+    appMgmtConfigs: configs,
+    userId: userId
   }).then(() => {
     getLists()
   }).catch(() => {

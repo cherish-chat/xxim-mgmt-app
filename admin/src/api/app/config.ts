@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 角色列表
+// app配置获取
 export function configLists(userId: String) {
     return request.post({
         url: '/appmgmt/get/config/list/all', params: {

@@ -40,6 +40,12 @@
             <el-option key="1" label="全员禁言" :value="true"/>
           </el-select>
         </el-form-item>
+        <el-form-item label="禁谁" prop="allMuterType" v-if="formData.allMute">
+          <el-select v-model="formData.allMuterType" placeholder="请选择禁言对象">
+            <el-option key="0" label="所有人" :value="0"/>
+            <el-option key="1" label="普通成员" :value="1"/>
+          </el-select>
+        </el-form-item>
         <el-form-item label="备注" prop="adminRemark">
           <el-input class="ls-input" v-model="formData.adminRemark" placeholder="请输入后台的备注"/>
         </el-form-item>
@@ -49,7 +55,7 @@
 </template>
 <script lang="ts" setup>
 import type {FormInstance} from 'element-plus'
-import {modelAdd, modelDetail, modelEdit} from '@/api/group/model'
+import {modelDetail, modelEdit} from '@/api/group/model'
 import Popup from '@/components/popup/index.vue'
 import feedback from '@/utils/feedback'
 
@@ -67,6 +73,7 @@ const formData = reactive({
   description: '',
   allMute: false,
   adminRemark: '',
+  allMuterType: 0,
 })
 
 const rules = {

@@ -107,3 +107,4 @@ sql
 admin/.env.development
 frontend
 public
+admin/pageake-lock.json

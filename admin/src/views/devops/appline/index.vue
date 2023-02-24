@@ -183,9 +183,9 @@ getLists()
             <el-form-item label="AccessKeyId">
               <el-input v-model="configData.storage.minio.accessKeyId" placeholder="请输入AccessKeyId"></el-input>
             </el-form-item>
-            <el-form-item label="AccessKeySecret">
-              <el-input v-model="configData.storage.minio.accessKeySecret"
-                        placeholder="请输入AccessKeySecret"></el-input>
+            <el-form-item label="secret">
+              <el-input v-model="configData.storage.minio.secretAccessKey"
+                        placeholder="请输入secret"></el-input>
             </el-form-item>
             <el-form-item label="BucketName">
               <el-input v-model="configData.storage.minio.bucketName" placeholder="请输入BucketName"></el-input>

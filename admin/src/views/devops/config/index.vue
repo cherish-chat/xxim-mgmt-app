@@ -32,6 +32,9 @@ interface Config {
     k8sNamespace: string
     port: number
     websocketPort: number
+    rsaPublicKey: string
+    rsaPrivateKey: string
+    aesIv: string
   }
   groupRpc: {
     port: number
@@ -127,6 +130,9 @@ const defaultConfig = {
     k8sNamespace: '',
     port: 0,
     websocketPort: 0,
+    rsaPublicKey: '',
+    rsaPrivateKey: '',
+    aesIv: ''
   },
   groupRpc: {
     port: 0,
@@ -225,6 +231,50 @@ const handleUpdate = () => {
   })
 }
 getLists()
+
+async function generateRsaKeyPair(): Promise<CryptoKeyPair> {
+  const keyPair = await window.crypto.subtle.generateKey(
+      {
+        name: "RSA-OAEP",
+        modulusLength: 2048, // 可以是1024, 2048或4096
+        publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+        hash: {name: "SHA-512"}, // 可以是"SHA-1"、"SHA-256"、"SHA-384"或"SHA-512"
+      },
+      true, // 密钥是否可导出（即可用于导出密钥）
+      ["encrypt", "decrypt"] // 必须是["encrypt", "decrypt"]或["wrapKey", "unwrapKey"]
+  );
+  return keyPair;
+}
+
+async function rsaKeyToPem(exportedKey: ArrayBuffer, type: "public" | "private"): Promise<string> {
+
+  // 将导出的密钥转换为 PEM 格式
+  const exportedAsString = String.fromCharCode(...new Uint8Array(exportedKey));
+  const exportedAsBase64 = btoa(exportedAsString);
+
+  let pemString = "";
+  pemString += `-----BEGIN ${type.toUpperCase()} KEY-----\r\n`;
+  pemString += `${exportedAsBase64.match(/.{1,64}/g)?.join("\r\n") ?? ""}\r\n`;
+  pemString += `-----END ${type.toUpperCase()} KEY-----\r\n`;
+
+  return pemString;
+}
+
+const rsaKeyGenerate = async () => {
+// 调用 generateRsaKeyPair() 函数来生成密钥对
+  const keyPair = await generateRsaKeyPair();
+
+// 导出公钥和私钥
+  const publicKey = await window.crypto.subtle.exportKey("spki", keyPair.publicKey);
+  const privateKey = await window.crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
+
+// 将公钥和私钥转换为可读格式
+  const publicPem = await rsaKeyToPem(publicKey, "public");
+  const privatePem = await rsaKeyToPem(privateKey, "private");
+
+  configData.value.connRpc.rsaPublicKey = publicPem
+  configData.value.connRpc.rsaPrivateKey = privatePem
+}
 </script>
 
 <template>
@@ -351,6 +401,19 @@ getLists()
             <el-form-item label="Websocket端口">
               <!--int类型输入框-->
               <el-input-number v-model="configData.connRpc.websocketPort" :min="1" :max="65536" :step="1"/>
+            </el-form-item>
+            <el-form-item label="rsa公钥">
+              <!--textarea类型输入框-->
+              <el-input v-model="configData.connRpc.rsaPublicKey" type="textarea" autosize/>
+              <el-button type="primary" @click="rsaKeyGenerate">生成</el-button>
+            </el-form-item>
+            <el-form-item label="rsa私钥">
+              <!--textarea类型输入框-->
+              <el-input v-model="configData.connRpc.rsaPrivateKey" type="textarea" autosize/>
+            </el-form-item>
+            <el-form-item label="aes iv">
+              <!--textarea类型输入框-->
+              <el-input v-model="configData.connRpc.aesIv" placeholder="请输入Aes IV"/>
             </el-form-item>
           </el-form>
         </div>

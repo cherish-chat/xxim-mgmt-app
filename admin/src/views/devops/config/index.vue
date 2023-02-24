@@ -34,7 +34,6 @@ interface Config {
     websocketPort: number
     rsaPublicKey: string
     rsaPrivateKey: string
-    aesIv: string
   }
   groupRpc: {
     port: number
@@ -132,7 +131,6 @@ const defaultConfig = {
     websocketPort: 0,
     rsaPublicKey: '',
     rsaPrivateKey: '',
-    aesIv: ''
   },
   groupRpc: {
     port: 0,
@@ -410,10 +408,6 @@ const rsaKeyGenerate = async () => {
             <el-form-item label="rsa私钥">
               <!--textarea类型输入框-->
               <el-input v-model="configData.connRpc.rsaPrivateKey" type="textarea" autosize/>
-            </el-form-item>
-            <el-form-item label="aes iv">
-              <!--textarea类型输入框-->
-              <el-input v-model="configData.connRpc.aesIv" placeholder="请输入Aes IV"/>
             </el-form-item>
           </el-form>
         </div>

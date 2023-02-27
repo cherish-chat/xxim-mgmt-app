@@ -1,6 +1,30 @@
 <template>
   <div class="model-lists">
     <el-card class="!border-none" shadow="never">
+      <el-form class="mb-[-16px]" :model="formData" inline>
+        <el-form-item label="账号">
+          <el-input
+              v-model="formData.id"
+              class="w-[280px]"
+              clearable
+              @keyup.enter="resetPage"
+          />
+        </el-form-item>
+        <el-form-item label="昵称">
+          <el-input
+              v-model="formData.nickname"
+              class="w-[280px]"
+              clearable
+              @keyup.enter="resetPage"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="resetPage">查询</el-button>
+          <el-button @click="resetParams">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+    <el-card class="!border-none" shadow="never">
       <div>
         <el-button v-perms="['user:friend:add']" type="primary" @click="handleAdd">
           <template #icon>
@@ -64,8 +88,9 @@ if (!userId) {
 }
 const formData = reactive({
   userId: userId,
+  role: ""
 });
-const {pager, getLists} = usePaging({
+const {pager, getLists, resetPage, resetParams} = usePaging({
   fetchFun: friendLists,
   respKey: "friendList",
   params: formData,

@@ -5,9 +5,6 @@
         <template #header>
           <div>
             <span class="card-title">今日数据</span>
-            <span class="text-tx-secondary text-xs ml-4">
-                            更新时间：{{ workbenchData.today.time }}
-                        </span>
           </div>
         </template>
 
@@ -125,7 +122,7 @@ const workbenchData: any = reactive({
         axisTick: {
           show: false
         },
-        name: '（人）'
+        name: '数量'
       }
     ],
     legend: {

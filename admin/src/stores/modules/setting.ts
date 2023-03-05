@@ -1,9 +1,10 @@
-import { defineStore } from 'pinia'
+import {defineStore} from 'pinia'
 import defaultSetting from '@/config/setting'
 import cache from '@/utils/cache'
-import { isObject } from '@vue/shared'
-import { setTheme } from '@/utils/theme'
-import { SETTING_KEY } from '@/enums/cacheEnums'
+import {isObject} from '@vue/shared'
+import {setTheme} from '@/utils/theme'
+import {SETTING_KEY} from '@/enums/cacheEnums'
+
 const storageSetting = cache.get(SETTING_KEY)
 
 export const useSettingStore = defineStore({
@@ -19,8 +20,8 @@ export const useSettingStore = defineStore({
     actions: {
         // 设置布局设置
         setSetting(data: Record<string, any>) {
-            const { key, value } = data
-            if (this.hasOwnProperty(key)) {
+            const {key, value} = data
+            if (Object.prototype.hasOwnProperty.call(this,key)) {
                 //@ts-ignore
                 this[key] = value
             }

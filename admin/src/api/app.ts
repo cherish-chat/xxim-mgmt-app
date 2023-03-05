@@ -7,5 +7,5 @@ export function getConfig() {
 
 // 工作台主页
 export function getWorkbench() {
-    return request.get({ url: '/common/index/console' })
+    return request.post({ url: '/ms/stats' })
 }

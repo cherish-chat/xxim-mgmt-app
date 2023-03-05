@@ -1,6 +1,34 @@
 <template>
   <div class="shieldword-lists">
     <el-card class="!border-none" shadow="never">
+      <el-form class="mb-[-16px]" :model="formData" inline>
+        <el-form-item label="词语">
+          <el-input
+              v-model="formData.word"
+              class="w-[280px]"
+              clearable
+              @keyup.enter="resetPage"
+          />
+        </el-form-item>
+        <!--createTime range-->
+        <el-form-item label="创建时间">
+          <el-date-picker
+              v-model="formDataTime"
+              type="datetimerange"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              clearable
+              @change="setFormDataTime"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="resetPage">查询</el-button>
+          <el-button @click="resetParams">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+    <el-card class="!border-none" shadow="never">
       <div>
         <el-button v-perms="['app:shieldword:add']" type="primary" @click="handleAdd">
           <template #icon>
@@ -56,11 +84,26 @@ import {usePaging} from '@/hooks/usePaging'
 import feedback from '@/utils/feedback'
 import EditPopup from './edit.vue'
 
+const formData = ref({
+  id: '',
+  logEnable: '',
+  title: '',
+  path: '',
+  time_gte: '',
+  time_lte: '',
+})
+const formDataTime = ref([])
+const setFormDataTime = (val: any) => {
+  formDataTime.value = val
+  formData.value.time_gte = (val[0] as Date).getTime().toString()
+  formData.value.time_lte = (val[1] as Date).getTime().toString()
+}
 const editRef = shallowRef<InstanceType<typeof EditPopup>>()
 const showEdit = ref(false)
-const {pager, getLists} = usePaging({
+const {pager, getLists, resetParams, resetPage} = usePaging({
   fetchFun: shieldwordLists,
-  respKey: "appMgmtShieldWords"
+  respKey: "appMgmtShieldWords",
+  params: formData.value,
 })
 const handleAdd = async () => {
   showEdit.value = true

@@ -1,6 +1,52 @@
 <template>
   <div class="ipwhitelist-lists">
     <el-card class="!border-none" shadow="never">
+      <el-form class="mb-[-16px]" :model="formData" inline>
+        <el-form-item label="状态">
+          <el-select
+              v-model="formData.isEnable"
+              clearable
+          >
+            <el-option label="全部" value=""/>
+            <el-option label="启用" value="1"/>
+            <el-option label="禁用" value="0"/>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-input
+              v-model="formData.remark"
+              class="w-[280px]"
+              clearable
+              @keyup.enter="resetPage"
+          />
+        </el-form-item>
+        <el-form-item label="ip">
+          <el-input
+              v-model="formData.ip"
+              class="w-[280px]"
+              clearable
+              @keyup.enter="resetPage"
+          />
+        </el-form-item>
+        <!--createTime range-->
+        <el-form-item label="创建时间">
+          <el-date-picker
+              v-model="formDataTime"
+              type="datetimerange"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              clearable
+              @change="setFormDataTime"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="resetPage">查询</el-button>
+          <el-button @click="resetParams">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+    <el-card class="!border-none" shadow="never">
       <div>
         <el-button v-perms="['system:ipwhitelist:add']" type="primary" @click="handleAdd">
           <template #icon>
@@ -75,11 +121,26 @@ import {usePaging} from '@/hooks/usePaging'
 import feedback from '@/utils/feedback'
 import EditPopup from './edit.vue'
 
+const formData = ref({
+  id: '',
+  isEnable: '',
+  remark: '',
+  ip: '',
+  time_gte: '',
+  time_lte: '',
+})
+const formDataTime = ref([])
+const setFormDataTime = (val: any) => {
+  formDataTime.value = val
+  formData.value.time_gte = (val[0] as Date).getTime().toString()
+  formData.value.time_lte = (val[1] as Date).getTime().toString()
+}
 const editRef = shallowRef<InstanceType<typeof EditPopup>>()
 const showEdit = ref(false)
-const {pager, getLists} = usePaging({
+const {pager, getLists, resetParams, resetPage} = usePaging({
   fetchFun: ipwhitelistLists,
-  respKey: "ipWhiteLists"
+  respKey: "ipWhiteLists",
+  params: formData.value,
 })
 const handleAdd = async () => {
   showEdit.value = true

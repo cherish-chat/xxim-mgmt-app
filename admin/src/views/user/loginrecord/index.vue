@@ -1,6 +1,42 @@
 <template>
   <div class="loginrecord-lists">
     <el-card class="!border-none" shadow="never">
+      <el-form class="mb-[-16px]" :model="formData" inline>
+        <el-form-item label="用户">
+          <el-input
+              v-model="formData.userId"
+              class="w-[280px]"
+              clearable
+              @keyup.enter="resetPage"
+          />
+        </el-form-item>
+        <el-form-item label="ip">
+          <el-input
+              v-model="formData.ip"
+              class="w-[280px]"
+              clearable
+              @keyup.enter="resetPage"
+          />
+        </el-form-item>
+        <!--createTime range-->
+        <el-form-item label="请求时间">
+          <el-date-picker
+              v-model="formDataTime"
+              type="datetimerange"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              clearable
+              @change="setFormDataTime"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="resetPage">查询</el-button>
+          <el-button @click="resetParams">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+    <el-card class="!border-none" shadow="never">
       <div class="mt-4">
         <div>
           <el-table :data="pager.lists" size="large" v-loading="pager.loading">
@@ -35,10 +71,23 @@
 <script lang="ts" setup name="loginrecord">
 import {loginrecordLists} from '@/api/user/loginrecord'
 import {usePaging} from '@/hooks/usePaging'
-
-const {pager, getLists} = usePaging({
+const formData = ref({
+  id: '',
+  userId: '',
+  ip: '',
+  time_gte: '',
+  time_lte: '',
+})
+const formDataTime = ref([])
+const setFormDataTime = (val: any) => {
+  formDataTime.value = val
+  formData.value.time_gte = (val[0] as Date).getTime().toString()
+  formData.value.time_lte = (val[1] as Date).getTime().toString()
+}
+const {pager, getLists, resetParams, resetPage} = usePaging({
   fetchFun: loginrecordLists,
-  respKey: "loginRecordList"
+  respKey: "loginRecordList",
+  params: formData.value,
 })
 getLists()
 </script>

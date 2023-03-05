@@ -1,6 +1,72 @@
 <template>
   <div class="operationlog-lists">
     <el-card class="!border-none" shadow="never">
+      <el-form class="mb-[-16px]" :model="formData" inline>
+        <el-form-item label="类型">
+          <el-select
+              v-model="formData.operationType"
+              clearable
+          >
+            <el-option label="全部" value=""/>
+            <el-option label="增加" value="add"/>
+            <el-option label="删除" value="delete"/>
+            <el-option label="修改" value="update"/>
+            <el-option label="其他" value="other"/>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="是否成功">
+          <el-select
+              v-model="formData.resultSuccess"
+              clearable
+          >
+            <el-option label="全部" value=""/>
+            <el-option label="成功" value="1"/>
+            <el-option label="失败" value="0"/>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="管理员">
+          <el-input
+              v-model="formData.operator"
+              class="w-[280px]"
+              clearable
+              @keyup.enter="resetPage"
+          />
+        </el-form-item>
+        <el-form-item label="标题">
+          <el-input
+              v-model="formData.operationTitle"
+              class="w-[280px]"
+              clearable
+              @keyup.enter="resetPage"
+          />
+        </el-form-item>
+        <el-form-item label="ip">
+          <el-input
+              v-model="formData.reqIp"
+              class="w-[280px]"
+              clearable
+              @keyup.enter="resetPage"
+          />
+        </el-form-item>
+        <!--createTime range-->
+        <el-form-item label="请求时间">
+          <el-date-picker
+              v-model="formDataReqTime"
+              type="datetimerange"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              clearable
+              @change="setFormDataReqTime"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="resetPage">查询</el-button>
+          <el-button @click="resetParams">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+    <el-card class="!border-none" shadow="never">
       <div class="mt-4">
         <div>
           <el-table :data="pager.lists" size="large" v-loading="pager.loading">
@@ -74,10 +140,26 @@ import {operationlogDelete, operationlogLists} from '@/api/perms/operationlog'
 import {usePaging} from '@/hooks/usePaging'
 import DetailPopup from "./detail.vue";
 import feedback from "@/utils/feedback";
-
-const {pager, getLists} = usePaging({
+const formData = ref({
+  id: '',
+  operationType: '',
+  operationTitle: '',
+  resultSuccess: '',
+  reqIp: '',
+  operator: '',
+  reqTime_gte: '',
+  reqTime_lte: '',
+})
+const formDataReqTime = ref([])
+const setFormDataReqTime = (val: any) => {
+  formDataReqTime.value = val
+  formData.value.reqTime_gte = (val[0] as Date).getTime().toString()
+  formData.value.reqTime_lte = (val[1] as Date).getTime().toString()
+}
+const {pager, getLists, resetPage, resetParams} = usePaging({
   fetchFun: operationlogLists,
-  respKey: "operationLogs"
+  respKey: "operationLogs",
+  params: formData.value,
 })
 const showDetail = ref(false)
 const detailRef = shallowRef<InstanceType<typeof DetailPopup>>()

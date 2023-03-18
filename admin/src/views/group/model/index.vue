@@ -73,7 +73,9 @@
             <el-table-column label="状态" min-width="100">
               <template #default="{ row }">
                 <el-tag v-if="row.dismissTime !== 0" type="danger">于{{ row.dismissTimeStr }}解散</el-tag>
-                <el-tag v-if="row.allMute" type="warning">全员禁言({{ row.allMuterType === 0 ? '所有人' : '普通用户'}})</el-tag>
+                <el-tag v-if="row.allMute" type="warning">
+                  全员禁言({{ row.allMuterType === 0 ? '所有人' : '普通用户' }})
+                </el-tag>
                 <el-tag v-if="row.dismissTime === 0 && !row.allMute" type="success">正常</el-tag>
               </template>
             </el-table-column>
@@ -98,6 +100,22 @@
                   编辑
                 </el-button>
                 <el-button
+                    v-perms="['group:model:edit']"
+                    link
+                    type="primary"
+                    @click="handleInsertZombie(row)"
+                >
+                  插入僵尸号
+                </el-button>
+                <el-button
+                    v-perms="['group:model:edit']"
+                    link
+                    type="danger"
+                    @click="handleClearZombie(row)"
+                >
+                  清空僵尸号
+                </el-button>
+                <el-button
                     v-perms="['group:model:del']"
                     link
                     :type="row.dismissTime !== 0 ? 'success' : 'danger'"
@@ -115,14 +133,17 @@
       </div>
     </el-card>
     <edit-popup v-if="showEdit" ref="editRef" @success="getLists" @close="showEdit = false"/>
+    <insert-zombie-popup v-if="showInsertZombie" ref="insertZombieRef" @success="getLists"
+                         @close="showInsertZombie = false"/>
   </div>
 </template>
 
 <script lang="ts" setup name="model">
-import {modelDelete, modelLists} from '@/api/group/model'
+import {modelDelete, modelLists, clearZombie} from '@/api/group/model'
 import {usePaging} from '@/hooks/usePaging'
 import feedback from '@/utils/feedback'
 import EditPopup from './edit.vue'
+import InsertZombiePopup from "./insertZombie.vue"
 
 const formData = ref({
   id: '',
@@ -139,7 +160,10 @@ const setFormDataCreateTime = (val: any) => {
   formData.value.createTime_lte = (val[1] as Date).getTime().toString()
 }
 const editRef = shallowRef<InstanceType<typeof EditPopup>>()
+const insertZombieRef = shallowRef<InstanceType<typeof InsertZombiePopup>>()
 const showEdit = ref(false)
+const showInsertZombie = ref(false)
+
 const {pager, getLists, resetPage, resetParams} = usePaging({
   fetchFun: modelLists,
   respKey: "groupModels",
@@ -147,16 +171,26 @@ const {pager, getLists, resetPage, resetParams} = usePaging({
 })
 
 const router = useRouter();
-const handleMembers = async (row: any) => {
-  // 跳转到 /group/friends 携带参数 row.id
-  router.push({path: '/group/friends', query: {id: row.id}})
-}
 
 const handleEdit = async (data: any) => {
   showEdit.value = true
   await nextTick()
   editRef.value?.open('edit')
   editRef.value?.setFormData(data)
+}
+
+const handleInsertZombie = async (data: any) => {
+  showInsertZombie.value = true
+  await nextTick()
+  insertZombieRef.value?.open()
+  insertZombieRef.value?.setFormData(data)
+}
+
+const handleClearZombie = async (data: any) => {
+  await feedback.confirm('确定要清空僵尸号？')
+  await clearZombie({groupId: data.id})
+  feedback.msgSuccess('清空僵尸号成功')
+  getLists()
 }
 
 // 删除角色

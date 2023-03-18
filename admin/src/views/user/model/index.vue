@@ -8,9 +8,10 @@
               clearable
           >
             <el-option label="全部" value=""/>
-            <el-option label="用户" :value="1"/>
-            <el-option label="客服" :value="2"/>
-            <el-option label="游客" :value="3"/>
+            <el-option label="用户" value="1"/>
+            <el-option label="客服" value="2"/>
+            <el-option label="游客" value="3"/>
+            <el-option label="僵尸" value="4"/>
           </el-select>
         </el-form-item>
         <el-form-item label="账号">
@@ -72,6 +73,12 @@
             <icon name="el-icon-Plus"/>
           </template>
           新增
+        </el-button>
+        <el-button v-perms="['user:model:add']" type="primary" @click="handleInsertZombie">
+          <template #icon>
+            <icon name="el-icon-Plus"/>
+          </template>
+          插入僵尸号
         </el-button>
       </div>
       <div class="mt-4">
@@ -187,6 +194,7 @@
       </div>
     </el-card>
     <edit-popup v-if="showEdit" ref="editRef" @success="getLists" @close="showEdit = false"/>
+    <insert-zombie-popup v-if="showInsertZombie" ref="insertZombieRef" @success="getLists" @close="showInsertZombie = false"/>
     <switch-popup v-if="showSwitch" ref="switchRef" @success="getLists" @close="showSwitch = false"/>
   </div>
 </template>
@@ -196,6 +204,7 @@ import {modelDelete, modelLists} from '@/api/user/model'
 import {usePaging} from '@/hooks/usePaging'
 import feedback from '@/utils/feedback'
 import EditPopup from './edit.vue'
+import InsertZombiePopup from './insertZombie.vue'
 import SwitchPopup from './switch.vue'
 
 const formData = ref({
@@ -214,8 +223,10 @@ const setFormDataCreateTime = (val: any) => {
   formData.value.createTime_lte = (val[1] as Date).getTime().toString()
 }
 const editRef = shallowRef<InstanceType<typeof EditPopup>>()
+const insertZombieRef = shallowRef<InstanceType<typeof InsertZombiePopup>>()
 const switchRef = shallowRef<InstanceType<typeof SwitchPopup>>()
 const showEdit = ref(false)
+const showInsertZombie = ref(false)
 const showSwitch = ref(false)
 const {pager, getLists, resetPage, resetParams} = usePaging({
   fetchFun: modelLists,
@@ -228,8 +239,12 @@ const getRole = (row: any) => {
     return '普通用户'
   } else if (row.role === 1) {
     return '客服'
-  } else {
+  } else if (row.role === 2) {
     return '游客'
+  } else if (row.role === 3) {
+    return '僵尸'
+  } else {
+    return '未知'
   }
 }
 
@@ -247,6 +262,12 @@ const handleAdd = async () => {
   showEdit.value = true
   await nextTick()
   editRef.value?.open('add')
+}
+
+const handleInsertZombie = async () => {
+  showInsertZombie.value = true
+  await nextTick()
+  insertZombieRef.value?.open()
 }
 
 const router = useRouter();

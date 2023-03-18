@@ -46,38 +46,33 @@
         </div>
       </el-card>
     </div>
-    <div class="md:flex">
+    <el-row :gutter="20">
+      <el-col :span="8" v-for="(visitorOption, i) in visitorOptions" :key="i">
+        <el-card class="flex-1 !border-none md:mr-4 mb-4" shadow="never">
+          <template #header>
+            <span>{{visitorOption.series[0].name}}</span>
+          </template>
+          <div>
+            <vCharts
+                style="height: 350px"
+                :option="visitorOption"
+                :autoresize="true"
+            />
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+    <div class="md:flex" v-for="(visitorOption, i) in visitorOptions" :key="i" v-if="false">
       <el-card class="flex-1 !border-none md:mr-4 mb-4" shadow="never">
         <template #header>
-          <span>每日数据趋势</span>
+          <span>{{visitorOption.series[0].name}}</span>
         </template>
         <div>
           <vCharts
               style="height: 350px"
-              :option="workbenchData.visitorOption"
+              :option="visitorOption"
               :autoresize="true"
           />
-        </div>
-      </el-card>
-      <el-card class="!border-none mb-4" shadow="never" v-if="false">
-        <template #header>
-          <span>服务支持</span>
-        </template>
-        <div>
-          <div v-for="(item, index) in workbenchData.support" :key="index">
-            <div
-                class="flex items-center pb-10 pt-10"
-                :class="{
-                                'border-b border-br': index == 0
-                            }"
-            >
-              <img width="120" height="120" class="flex-none" :src="item.image"/>
-              <div class="ml-2">
-                <div>{{ item.title }}</div>
-                <div class="text-tx-regular text-xs mt-4">{{ item.desc }}</div>
-              </div>
-            </div>
-          </div>
         </div>
       </el-card>
     </div>
@@ -86,25 +81,11 @@
 
 <script lang="ts" setup name="workbench">
 import {getWorkbench} from '@/api/app'
-import qq_group from './image/qq_group.png'
-import customer_service from './image/customer_service.png'
 //@ts-ignore
 import vCharts from 'vue-echarts'
 
 // 表单数据
 const workbenchData: any = reactive({
-  support: [
-    {
-      image: qq_group,
-      title: '扫码进入QQ交流群',
-      desc: '疑难疑点 进入QQ群'
-    },
-    {
-      image: customer_service,
-      title: '添加企业客服微信',
-      desc: '想了解更多请添加客服'
-    }
-  ],
   today: {}, // 今日数据
 
   visitorOption: {
@@ -149,6 +130,8 @@ const workbenchData: any = reactive({
   }
 })
 
+const visitorOptions = ref([])
+
 // 获取工作台主页数据
 const getData = async () => {
   const res = await getWorkbench()
@@ -162,6 +145,46 @@ const getData = async () => {
   workbenchData.visitorOption.xAxis.data = res.dates
   workbenchData.visitorOption.legend.data = res.legend
   workbenchData.visitorOption.series = res.series
+  // for
+  let tmpVisitorOptions = []
+  for (let i in res.series) {
+    let s = res.series[i]
+    tmpVisitorOptions.push({
+      xAxis: {
+        type: 'category',
+        boundaryGap: false,
+        axisTick: {
+          show: false
+        },
+        data: res.dates,
+      },
+      yAxis: [
+        {
+          type: 'value',
+          axisTick: {
+            show: false
+          },
+          name: '数量'
+        }
+      ],
+      legend: {
+        data: res.legend
+      },
+      calculable: true,
+      tooltip: {
+        trigger: 'axis'
+      },
+      series: [
+        {
+          name: s.name,
+          data: s.data,
+          type: s.type,
+          stack: s.stack,
+        }
+      ]
+    })
+  }
+  visitorOptions.value = tmpVisitorOptions
 }
 
 getData()

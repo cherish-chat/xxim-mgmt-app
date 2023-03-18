@@ -40,3 +40,11 @@ export function modelSwitch(params: any) {
 export function modelDelete(params: any) {
     return request.post({url: '/groupmgmt/dismiss/model', params})
 }
+
+export function modelBatchInsertZombie(params: any) {
+    return request.post({url: '/groupmgmt/insert/member/zombie', params})
+}
+
+export function clearZombie(params: any) {
+    return request.post({url: '/groupmgmt/clear/member/zombie', params})
+}

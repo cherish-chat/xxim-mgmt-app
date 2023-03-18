@@ -40,3 +40,8 @@ export function modelSwitch(params: any) {
 export function modelDelete(params: any) {
     return request.post({url: '/usermgmt/delete/model', params})
 }
+
+// 批量插入僵尸号
+export function modelBatchInsertZombie(params: any) {
+    return request.post({url: '/usermgmt/batch/create/zombie', params})
+}

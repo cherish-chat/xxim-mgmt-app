@@ -61,6 +61,7 @@
             <el-option key="0" label="用户" :value="0"/>
             <el-option key="1" label="客服" :value="1"/>
             <el-option key="2" label="游客" :value="2"/>
+            <el-option key="3" label="僵尸" :value="3"/>
           </el-select>
         </el-form-item>
         <el-form-item label="备注" prop="adminRemark">

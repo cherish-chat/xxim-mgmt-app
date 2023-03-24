@@ -77,10 +77,9 @@
 </template>
 
 <script lang="ts" setup name="group">
-import {modelDelete} from '@/api/user/model'
 import {usePaging} from '@/hooks/usePaging'
 import feedback from '@/utils/feedback'
-import {groupLists} from "@/api/user/group";
+import {groupLists, groupDelete} from "@/api/user/group";
 
 const router = useRouter();
 const userId = router.currentRoute.value.query.id;
@@ -100,7 +99,10 @@ const {pager, getLists, resetPage, resetParams} = usePaging({
 // 删除角色
 const handleDelete = async (id: string) => {
   await feedback.confirm('确定要删除？')
-  await modelDelete({ids: [id]})
+  await groupDelete({
+    "userId": userId,
+    "groupId": id
+  })
   feedback.msgSuccess('删除成功')
   getLists()
 }

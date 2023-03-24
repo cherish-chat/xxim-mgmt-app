@@ -9,3 +9,8 @@ export function groupLists(params: any) {
         }
     })
 }
+
+// groupDelete
+export function groupDelete(params: any) {
+    return request.post({url: '/usermgmt/delete/group', params})
+}

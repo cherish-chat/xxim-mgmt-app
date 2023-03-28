@@ -1,20 +1,22 @@
-import { merge } from 'lodash'
+import {merge} from 'lodash'
 import configs from '@/config'
-import { Axios } from './axios'
-import { ContentTypeEnum, RequestCodeEnum, RequestMethodsEnum } from '@/enums/requestEnums'
-import type { AxiosHooks } from './type'
+import {Axios} from './axios'
+import {ContentTypeEnum, RequestCodeEnum, RequestMethodsEnum} from '@/enums/requestEnums'
+import type {AxiosHooks} from './type'
 import {clearAuthInfo, getToken, getUserId} from '../auth'
 import feedback from '../feedback'
 import NProgress from 'nprogress'
-import { AxiosError, type AxiosRequestConfig } from 'axios'
+import {AxiosError, type AxiosRequestConfig} from 'axios'
 import router from '@/router'
-import { PageEnum } from '@/enums/pageEnum'
+import {PageEnum} from '@/enums/pageEnum'
+// @ts-ignore
+import CryptoJS from 'crypto-js'
 
 // 处理axios的钩子函数
 const axiosHooks: AxiosHooks = {
     requestInterceptorsHook(config) {
         NProgress.start()
-        const { withToken, isParamsToData } = config.requestOptions
+        const {withToken, isParamsToData} = config.requestOptions
         const params = config.params || {}
         const headers = config.headers || {}
 
@@ -34,6 +36,24 @@ const axiosHooks: AxiosHooks = {
             config.data = params
             config.params = {}
         }
+
+        const {aesKey, aesIv} = configs
+        if (aesKey !== "" && aesIv !== "") {
+            const iv = CryptoJS.MD5(aesIv).toString().substr(8, 16);
+            const key = CryptoJS.MD5(aesKey).toString();
+            if (config.data) {
+                const body = JSON.stringify(config.data);
+                const cipherText = CryptoJS.AES.encrypt(
+                    body,
+                    CryptoJS.enc.Utf8.parse(key),
+                    {
+                        iv: CryptoJS.enc.Utf8.parse(iv),
+                        mode: CryptoJS.mode.CBC,
+                        padding: CryptoJS.pad.Pkcs7
+                    }).toString();
+                config.data = cipherText;
+            }
+        }
         config.headers = headers
         return config
     },
@@ -43,7 +63,7 @@ const axiosHooks: AxiosHooks = {
     },
     async responseInterceptorsHook(response) {
         NProgress.done()
-        const { isTransformResponse, isReturnDefaultResponse } = response.config.requestOptions
+        const {isTransformResponse, isReturnDefaultResponse} = response.config.requestOptions
 
         //返回默认响应，当需要获取响应头及其他数据时可使用
         if (isReturnDefaultResponse) {
@@ -53,7 +73,28 @@ const axiosHooks: AxiosHooks = {
         if (!isTransformResponse) {
             return response.data
         }
-        const { code, data, show, msg } = response.data
+
+        // @ts-ignore
+        const b64Data = response.data as string
+
+        // 解密
+        const {aesKey, aesIv} = configs
+        let {code, data, show, msg} = response.data
+        if (aesKey !== "" && aesIv !== "") {
+            const iv = CryptoJS.MD5(aesIv).toString().substr(8, 16);
+            const key = CryptoJS.MD5(aesKey).toString();
+            const bytes = CryptoJS.AES.decrypt(b64Data, CryptoJS.enc.Utf8.parse(key), {
+                iv: CryptoJS.enc.Utf8.parse(iv),
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            const text = bytes.toString(CryptoJS.enc.Utf8);
+            const decryptedData = JSON.parse(text);
+            code = decryptedData.code
+            data = decryptedData.data
+            show = decryptedData.show
+            msg = decryptedData.msg
+        }
         switch (code) {
             case RequestCodeEnum.SUCCESS:
                 if (show) {
@@ -97,7 +138,7 @@ const defaultOptions: AxiosRequestConfig = {
     timeout: configs.timeout,
     // 基础接口地址
     baseURL: configs.baseUrl,
-    headers: { 'Content-Type': ContentTypeEnum.JSON, version: configs.version },
+    headers: {'Content-Type': ContentTypeEnum.JSON, version: configs.version},
 
     // 处理 axios的钩子函数
     axiosHooks: axiosHooks,
@@ -128,5 +169,6 @@ function createAxios(opt?: Partial<AxiosRequestConfig>) {
         merge(defaultOptions, opt || {})
     )
 }
+
 const request = createAxios()
 export default request

@@ -48,6 +48,8 @@ interface Config {
     rpcPort: number
     superAdminId: string
     superAdminPass: string
+    aesIv: string
+    aesKey: string
   }
   msgRpc: {
     discovType: string
@@ -145,6 +147,8 @@ const defaultConfig = {
     rpcPort: 0,
     superAdminId: '',
     superAdminPass: '',
+    aesIv: '',
+    aesKey: '',
   },
   msgRpc: {
     discovType: '',
@@ -516,6 +520,14 @@ const rsaKeyGenerate = async () => {
               </el-form-item>
               <el-form-item label="密码">
                 <el-input v-model="configData.mgmt.superAdminPass" placeholder="请输入超管密码"/>
+              </el-form-item>
+            </el-form-item>
+            <el-form-item label="BMS加密">
+              <el-form-item label="aesIv">
+                <el-input v-model="configData.mgmt.aesIv" placeholder="请输入aesIv"/>
+              </el-form-item>
+              <el-form-item label="aesKey">
+                <el-input v-model="configData.mgmt.aesKey" placeholder="请输入aesKey"/>
               </el-form-item>
             </el-form-item>
           </el-form>

@@ -18,9 +18,6 @@
         <el-form-item label="id" prop="idPrefix">
           <el-input class="ls-input" v-model="formData.idPrefix" placeholder="请输入id前缀"/>
         </el-form-item>
-        <el-form-item label="昵称" prop="nicknamePrefix">
-          <el-input class="ls-input" v-model="formData.nicknamePrefix" placeholder="请输入昵称前缀"/>
-        </el-form-item>
         <!--密码 空表示不修改-->
         <el-form-item label="密码" prop="password">
           <el-input
@@ -53,15 +50,11 @@ const popupTitle = computed(() => {
 })
 const formData = reactive({
   idPrefix: '',
-  nicknamePrefix: '',
   password: '',
   count: 1,
 })
 
 const rules = {
-  nicknamePrefix: [
-    {required: true, message: '请输入昵称前缀', trigger: 'blur'},
-  ],
   idPrefix: [
     {required: true, message: '请输入ID前缀', trigger: 'blur'},
   ],

@@ -50,6 +50,9 @@ interface Config {
     superAdminPass: string
     aesIv: string
     aesKey: string
+  },
+  xos: {
+    httpPort: number
   }
   msgRpc: {
     discovType: string
@@ -149,6 +152,9 @@ const defaultConfig = {
     superAdminPass: '',
     aesIv: '',
     aesKey: '',
+  },
+  xos: {
+    httpPort: 0,
   },
   msgRpc: {
     discovType: '',
@@ -529,6 +535,15 @@ const rsaKeyGenerate = async () => {
               <el-form-item label="aesKey">
                 <el-input v-model="configData.mgmt.aesKey" placeholder="请输入aesKey"/>
               </el-form-item>
+            </el-form-item>
+          </el-form>
+        </div>
+        <el-divider content-position="left"><span class="text-2xl font-bold">对象存储API配置</span></el-divider>
+        <div>
+          <el-form :model="configData.xos" label-width="120px" class="mt-4">
+            <el-form-item label="http端口">
+              <!--int类型输入框-->
+              <el-input-number v-model="configData.xos.httpPort" :min="1" :max="65536" :step="1"/>
             </el-form-item>
           </el-form>
         </div>

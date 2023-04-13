@@ -1,11 +1,12 @@
-import { defineStore } from 'pinia'
+import {defineStore} from 'pinia'
 import cache from '@/utils/cache'
-import type { RouteRecordRaw } from 'vue-router'
-import { getUserInfo, login, logout, getMenu } from '@/api/user'
-import router, { filterAsyncRoutes } from '@/router'
+import type {RouteRecordRaw} from 'vue-router'
+import {getMenu, getUserInfo, login} from '@/api/user'
+import router, {filterAsyncRoutes} from '@/router'
 import {TOKEN_KEY, USERID_KEY} from '@/enums/cacheEnums'
-import { PageEnum } from '@/enums/pageEnum'
-import { clearAuthInfo, getToken } from '@/utils/auth'
+import {PageEnum} from '@/enums/pageEnum'
+import {clearAuthInfo, getToken} from '@/utils/auth'
+
 export interface UserState {
     token: string
     userInfo: Record<string, any>
@@ -34,11 +35,13 @@ const useUserStore = defineStore({
             this.perms = []
         },
         login(playload: any) {
-            const { account, password } = playload
+            const {account, password, captchaId, captchaCode} = playload
             return new Promise((resolve, reject) => {
                 login({
                     id: account,
-                    password: password
+                    password: password,
+                    captchaId: captchaId,
+                    captchaCode: captchaCode
                 })
                     .then((data) => {
                         this.token = data.token

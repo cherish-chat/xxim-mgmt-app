@@ -43,6 +43,8 @@ const axiosHooks: AxiosHooks = {
             const key = CryptoJS.MD5(aesKey).toString();
             if (config.data) {
                 const body = JSON.stringify(config.data);
+                // debug log
+                console.debug("request: " + body);
                 const cipherText = CryptoJS.AES.encrypt(
                     body,
                     CryptoJS.enc.Utf8.parse(key),
@@ -94,6 +96,8 @@ const axiosHooks: AxiosHooks = {
             data = decryptedData.data
             show = decryptedData.show
             msg = decryptedData.msg
+            // debug log
+            console.debug("response: " + text);
         }
         switch (code) {
             case RequestCodeEnum.SUCCESS:

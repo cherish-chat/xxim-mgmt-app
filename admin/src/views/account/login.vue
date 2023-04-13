@@ -3,34 +3,51 @@
         <div class="flex-1 flex items-center justify-center">
             <div class="login-card flex rounded-md">
                 <div class="flex-1 h-full hidden md:inline-block">
-                    <image-contain :src="config.webBackdrop" :width="400" height="100%" />
+                    <image-contain :src="config.webBackdrop" :width="400" height="100%"/>
                 </div>
                 <div
-                    class="login-form bg-body flex flex-col justify-center px-10 py-10 md:w-[400px] w-[375px] flex-none mx-auto"
+                        class="login-form bg-body flex flex-col justify-center px-10 py-10 md:w-[400px] w-[375px] flex-none mx-auto"
                 >
                     <div class="text-center text-3xl font-medium mb-8">{{ config.webName }}</div>
                     <el-form ref="formRef" :model="formData" size="large" :rules="rules">
                         <el-form-item prop="account">
                             <el-input
-                                v-model.trim="formData.account"
-                                placeholder="请输入账号"
-                                @keyup.enter="handleEnter"
+                                    v-model.trim="formData.account"
+                                    placeholder="请输入账号"
+                                    @keyup.enter="handleEnter"
                             >
                                 <template #prepend>
-                                    <icon name="el-icon-User" />
+                                    <icon name="el-icon-User"/>
                                 </template>
                             </el-input>
                         </el-form-item>
                         <el-form-item prop="password">
                             <el-input
-                                ref="passwordRef"
-                                v-model="formData.password"
-                                show-password
-                                placeholder="请输入密码"
-                                @keyup.enter="handleLogin"
+                                    ref="passwordRef"
+                                    v-model="formData.password"
+                                    show-password
+                                    placeholder="请输入密码"
+                                    @keyup.enter="handleLogin"
                             >
                                 <template #prepend>
-                                    <icon name="el-icon-Lock" />
+                                    <icon name="el-icon-Lock"/>
+                                </template>
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item prop="captchaCode">
+                            <el-input
+                                    v-model="formData.captchaCode"
+                                    placeholder="请输入验证码"
+                                    @keyup.enter="handleLogin"
+                            >
+                                <template #prepend>
+                                    <div class="captcha">
+                                        <el-image
+                                                fit="cover"
+                                                :src="captchaB64"
+                                                @click="resetCaptcha"
+                                        />
+                                    </div>
                                 </template>
                             </el-input>
                         </el-form-item>
@@ -44,20 +61,21 @@
                 </div>
             </div>
         </div>
-        <layout-footer />
+        <layout-footer/>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, reactive, ref, shallowRef } from 'vue'
-import type { InputInstance, FormInstance } from 'element-plus'
-import LayoutFooter from '@/layout/components/footer.vue'
+import {computed, onMounted, reactive, ref, shallowRef} from 'vue'
+import type {FormInstance, InputInstance} from 'element-plus'
 import useAppStore from '@/stores/modules/app'
 import useUserStore from '@/stores/modules/user'
 import cache from '@/utils/cache'
-import { ACCOUNT_KEY } from '@/enums/cacheEnums'
-import { PageEnum } from '@/enums/pageEnum'
-import { useLockFn } from '@/hooks/useLockFn'
+import {ACCOUNT_KEY} from '@/enums/cacheEnums'
+import {PageEnum} from '@/enums/pageEnum'
+import {useLockFn} from '@/hooks/useLockFn'
+import {getCaptcha} from "@/api/user";
+
 const passwordRef = shallowRef<InputInstance>()
 const formRef = shallowRef<FormInstance>()
 const appStore = useAppStore()
@@ -68,8 +86,19 @@ const remAccount = ref(false)
 const config = computed(() => appStore.config)
 const formData = reactive({
     account: '',
-    password: ''
+    password: '',
+    captchaId: '',
+    captchaCode: ''
 })
+const captchaB64 = ref('')
+const resetCaptcha = () => {
+    getCaptcha().then(res => {
+        formData.captchaId = res.captchaId
+        formData.captchaCode = ''
+        captchaB64.value = 'data:image/png;base64,' + res.captchaB64
+    })
+}
+resetCaptcha()
 const rules = {
     account: [
         {
@@ -82,6 +111,13 @@ const rules = {
         {
             required: true,
             message: '请输入密码',
+            trigger: ['blur']
+        }
+    ],
+    captchaCode: [
+        {
+            required: true,
+            message: '请输入验证码',
             trigger: ['blur']
         }
     ]
@@ -101,14 +137,16 @@ const handleLogin = async () => {
         remember: remAccount.value,
         account: remAccount.value ? formData.account : ''
     })
-    await userStore.login(formData)
+    await userStore.login(formData).catch(() => {
+        resetCaptcha()
+    })
     const {
-        query: { redirect }
+        query: {redirect}
     } = route
     const path = typeof redirect === 'string' ? redirect : PageEnum.INDEX
     router.push(path)
 }
-const { isLock, lockFn: lockLogin } = useLockFn(handleLogin)
+const {isLock, lockFn: lockLogin} = useLockFn(handleLogin)
 
 onMounted(() => {
     const value = cache.get(ACCOUNT_KEY)
@@ -123,8 +161,21 @@ onMounted(() => {
 .login {
     background-image: url('./images/login_bg.png');
     @apply min-h-screen bg-no-repeat bg-center bg-cover;
+
     .login-card {
         height: 400px;
+    }
+}
+
+.captcha {
+    width: 120px;
+    height: 40px;
+    margin-right: -20px;
+    margin-left: -20px;
+
+    .el-image {
+        width: 120px;
+        height: 40px;
     }
 }
 </style>

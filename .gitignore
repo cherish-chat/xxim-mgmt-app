@@ -109,3 +109,4 @@ frontend
 public
 admin/pageake-lock.json
 
+admin/yarn.lock

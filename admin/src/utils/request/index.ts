@@ -134,6 +134,15 @@ const axiosHooks: AxiosHooks = {
         if (error.code !== AxiosError.ERR_CANCELED) {
             error.message && feedback.msgError(error.message)
         }
+        // 如果是 403，说明没权限，弹出提示
+        if (error.response?.status === 403) {
+            feedback.msgError('您没有权限访问该资源')
+        }
+        // 如果是401，说明token失效，跳转到登录页
+        if (error.response?.status === 401) {
+            clearAuthInfo()
+            router.push(PageEnum.LOGIN)
+        }
         return Promise.reject(error)
     }
 }

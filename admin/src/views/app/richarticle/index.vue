@@ -21,6 +21,19 @@
             />
             <el-table-column
                 prop="content"
+                label="封面"
+                min-width="150"
+            >
+              <template #default="{ row }">
+                <el-image
+                    :src="row.coverUrl"
+                    alt=""
+                    style="width: 100px; height: 100px; object-fit: cover"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column
+                prop="content"
                 label="内容"
                 min-width="150"
                 show-overflow-tooltip

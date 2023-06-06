@@ -18,6 +18,16 @@
         <el-form-item label="标题" prop="title">
           <el-input class="ls-input" v-model="formData.title" placeholder="请输入标题" clearable/>
         </el-form-item>
+        <el-form-item label="图标" prop="coverUrl">
+          <div>
+            <div>
+              <material-picker v-model="formData.coverUrl" :limit="1"/>
+            </div>
+            <div class="form-tips">
+              建议尺寸：200*200px，支持jpg，jpeg，png格式
+            </div>
+          </div>
+        </el-form-item>
         <el-form-item label="内容" prop="content">
           <el-input type="textarea" v-model="formData.content" placeholder="请输入内容"/>
         </el-form-item>
@@ -64,6 +74,7 @@ const formData = reactive({
   id: '',
   contentType: 'text/html',
   title: '',
+  coverUrl: '',
   content: '',
   sort: 0,
   isEnable: true,
@@ -81,6 +92,13 @@ const rules = {
     {
       required: true,
       message: '请输入标题',
+      trigger: ['blur']
+    }
+  ],
+  coverUrl: [
+    {
+      required: true,
+      message: '请上传封面图',
       trigger: ['blur']
     }
   ],

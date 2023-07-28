@@ -140,6 +140,14 @@
                     v-perms="['user:model:detail']"
                     link
                     type="primary"
+                    @click="handleWallet(row)"
+                >
+                  钱包
+                </el-button>
+                <el-button
+                    v-perms="['user:model:detail']"
+                    link
+                    type="primary"
                     @click="handleFriends(row)"
                 >
                   好友列表
@@ -194,6 +202,7 @@
       </div>
     </el-card>
     <edit-popup v-if="showEdit" ref="editRef" @success="getLists" @close="showEdit = false"/>
+    <wallet-popup v-if="showWallet" ref="walletRef" @success="getLists" @close="showWallet = false"/>
     <insert-zombie-popup v-if="showInsertZombie" ref="insertZombieRef" @success="getLists" @close="showInsertZombie = false"/>
     <switch-popup v-if="showSwitch" ref="switchRef" @success="getLists" @close="showSwitch = false"/>
   </div>
@@ -204,6 +213,7 @@ import {modelDelete, modelLists} from '@/api/user/model'
 import {usePaging} from '@/hooks/usePaging'
 import feedback from '@/utils/feedback'
 import EditPopup from './edit.vue'
+import WalletPopup from './wallet.vue'
 import InsertZombiePopup from './insertZombie.vue'
 import SwitchPopup from './switch.vue'
 
@@ -223,9 +233,11 @@ const setFormDataCreateTime = (val: any) => {
   formData.value.createTime_lte = (val[1] as Date).getTime().toString()
 }
 const editRef = shallowRef<InstanceType<typeof EditPopup>>()
+const walletRef = shallowRef<InstanceType<typeof WalletPopup>>()
 const insertZombieRef = shallowRef<InstanceType<typeof InsertZombiePopup>>()
 const switchRef = shallowRef<InstanceType<typeof SwitchPopup>>()
 const showEdit = ref(false)
+const showWallet = ref(false)
 const showInsertZombie = ref(false)
 const showSwitch = ref(false)
 const {pager, getLists, resetPage, resetParams} = usePaging({
@@ -288,6 +300,11 @@ const handleEdit = async (data: any) => {
   await nextTick()
   editRef.value?.open('edit')
   editRef.value?.setFormData(data)
+}
+const handleWallet = async (data: any) => {
+  showWallet.value = true
+  await nextTick()
+  walletRef.value?.open(data)
 }
 const handleSwitch = async (data: any) => {
   showSwitch.value = true
